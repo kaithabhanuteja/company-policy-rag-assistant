@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Policy Assistant</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f5f9;
+            color: #202b3c;
+        }
+
+        header {
+            background: #172554;
+            color: white;
+            padding: 22px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+            font-size: 24px;
+        }
+
+        header p {
+            margin: 0;
+            color: #dbeafe;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 28px auto;
+            padding: 0 16px;
+        }
+
+        .intro {
+            margin-bottom: 18px;
+        }
+
+        .intro h2 {
+            margin-bottom: 8px;
+            font-size: 20px;
+        }
+
+        .intro p {
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .chat-box {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 20px;
+            min-height: 320px;
+            max-height: 480px;
+            overflow-y: auto;
+        }
+
+        .message {
+            margin-bottom: 20px;
+        }
+
+        .role {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 7px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .bubble {
+            padding: 13px 15px;
+            border-radius: 10px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .user .bubble {
+            background: #dbeafe;
+        }
+
+        .assistant .bubble {
+            background: #f1f5f9;
+        }
+
+        .examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 18px 0;
+        }
+
+        .examples button {
+            border: 1px solid #cbd5e1;
+            background: white;
+            padding: 9px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            color: #334155;
+        }
+
+        .examples button:hover {
+            background: #eaf2ff;
+        }
+
+        form.ask-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        input[name="question"] {
+            flex: 1;
+            min-width: 0;
+            padding: 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 9px;
+            font-size: 15px;
+        }
+
+        button.primary {
+            border: 0;
+            background: #1d4ed8;
+            color: white;
+            padding: 0 22px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button.primary:hover {
+            background: #1e40af;
+        }
+
+        .clear-form {
+            text-align: right;
+            margin-top: 12px;
+        }
+
+        .clear-form button {
+            background: transparent;
+            border: 0;
+            color: #64748b;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+            padding: 20px;
+        }
+
+        @media (max-width: 520px) {
+            form.ask-form {
+                flex-direction: column;
+            }
+
+            button.primary {
+                padding: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Company Policy Assistant</h1>
+        <p>Ask questions about company policies, benefits, travel and more</p>
+    </header>
+
+    <main class="container">
+
+        <section class="intro">
+            <h2>How can I help you?</h2>
+            <p>
+                Ask a company policy question or ask a general
+                knowledge question. Policy answers are based on
+                the available handbook.
+            </p>
+        </section>
+
+        <section class="chat-box" id="chat-box" aria-live="polite">
+
+            {% if not messages %}
+            <div class="message assistant">
+                <div class="role">AI Assistant</div>
+                <div class="bubble">
+                    Hello! I'm your Company Policy Assistant.
+
+                    You can ask me about travel approvals, expense reimbursements,
+                    leave, working hours, employee benefits, or general topics.
+                </div>
+            </div>
+            {% endif %}
+
+            {% for message in messages %}
+            <div class="message {{ message.role }}">
+                <div class="role">
+                    {% if message.role == "user" %}
+                    You
+                    {% else %}
+                    AI Assistant
+                    {% endif %}
+                </div>
+
+                <div class="bubble">{{ message.text }}</div>
+            </div>
+            {% endfor %}
+
+        </section>
+
+        <div class="examples">
+            <button type="button" onclick="setQuestion('What approval is required before booking business travel?')">
+                Travel approval
+            </button>
+
+            <button type="button" onclick="setQuestion('How long do I have to submit expense claims?')">
+                Expense claims
+            </button>
+
+            <button type="button" onclick="setQuestion('What are the company working hours?')">
+                Working hours
+            </button>
+
+            <button type="button" onclick="setQuestion('Explain machine learning.')">
+                General question
+            </button>
+        </div>
+
+        <form class="ask-form" method="POST" action="/">
+            <input type="text" name="question" id="question" placeholder="Type your question here..." autocomplete="off"
+                required>
+
+            <button class="primary" type="submit">Ask</button>
+        </form>
+
+        <form class="clear-form" method="POST" action="/clear">
+            <button type="submit">Clear conversation</button>
+        </form>
+
+    </main>
+
+    <footer>
+        Powered by Python, Flask, FAISS and Gemini
+        <br>
+        Demo handbook only — verify actual policies with HR.
+    </footer>
+
+    <script>
+        function setQuestion(question) {
+            document.getElementById("question").value = question;
+            document.getElementById("question").focus();
+        }
+
+        const chatBox = document.getElementById("chat-box");
+        chatBox.scrollTop = chatBox.scrollHeight;
+    </script>
+
+</body>
+
+</html>
